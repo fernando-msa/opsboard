@@ -1,16 +1,10 @@
 import { redirect } from 'next/navigation';
 import { Header } from '@/components/header';
 import { NewTicketForm } from '@/components/new-ticket-form';
+import { TicketTable } from '@/components/ticket-table';
 import { getSession } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { calculateSlaMetrics } from '@/lib/sla';
-
-const statusLabel: Record<string, string> = {
-  OPEN: 'Aberto',
-  IN_PROGRESS: 'Em andamento',
-  RESOLVED: 'Resolvido',
-  CLOSED: 'Fechado'
-};
 
 export default async function DashboardPage() {
   const session = await getSession();
@@ -21,7 +15,7 @@ export default async function DashboardPage() {
     prisma.ticket.findMany({
       where: { organizationId: session.organizationId },
       orderBy: { createdAt: 'desc' },
-      take: 15
+      take: 20
     })
   ]);
 
@@ -50,29 +44,15 @@ export default async function DashboardPage() {
         <div className="lg:col-span-1">
           <NewTicketForm />
         </div>
-        <div className="card overflow-auto lg:col-span-2">
-          <h2 className="mb-4 text-lg font-semibold">Tickets recentes</h2>
-          <table className="min-w-full text-left text-sm">
-            <thead className="text-slate-400">
-              <tr>
-                <th className="pb-2">Título</th>
-                <th className="pb-2">Status</th>
-                <th className="pb-2">Prioridade</th>
-                <th className="pb-2">Abertura</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tickets.map((ticket) => (
-                <tr key={ticket.id} className="border-t border-slate-800">
-                  <td className="py-2 pr-3">{ticket.title}</td>
-                  <td className="py-2 pr-3">{statusLabel[ticket.status]}</td>
-                  <td className="py-2 pr-3">{ticket.priority}</td>
-                  <td className="py-2">{new Date(ticket.createdAt).toLocaleDateString('pt-BR')}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <TicketTable
+          initialTickets={tickets.map((ticket) => ({
+            id: ticket.id,
+            title: ticket.title,
+            status: ticket.status,
+            priority: ticket.priority,
+            createdAt: ticket.createdAt.toISOString()
+          }))}
+        />
       </section>
     </main>
   );

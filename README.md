@@ -7,7 +7,7 @@ SaaS B2B para monitoramento de **SLA**, **incidentes** e **status page pública*
 - **Autenticação JWT** (registro, login, logout) com cookie HTTP-only.
 - **Multi-tenant por organização** (cada usuário pertence a uma empresa).
 - **Criação de organização no registro** + serviços padrão para status page.
-- **CRUD de tickets** (API completa):
+- **CRUD de tickets** (API + UI):
   - título
   - descrição
   - status
@@ -17,7 +17,7 @@ SaaS B2B para monitoramento de **SLA**, **incidentes** e **status page pública*
 - **SLA Dashboard**:
   - tempo médio de atendimento
   - % de tickets dentro do prazo
-- **Incidentes manuais** com status:
+- **Incidentes manuais** com criação, atualização e exclusão:
   - operacional
   - degradado
   - fora do ar
