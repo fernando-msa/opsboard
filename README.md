@@ -250,6 +250,28 @@ O projeto suporta autenticação com Google via Firebase Auth e grava eventos de
 
 ---
 
+### Ativar Google Auth no Render (checklist rápido)
+
+1. No Firebase Console, habilite **Authentication > Sign-in method > Google**.
+2. Em **Authentication > Settings > Authorized domains**, adicione seu domínio do Render (`*.onrender.com`) e domínio custom se houver.
+3. No Render (Web Service > Environment), configure:
+   - `NEXT_PUBLIC_FIREBASE_API_KEY`
+   - `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
+   - `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
+   - `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
+   - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
+   - `NEXT_PUBLIC_FIREBASE_APP_ID`
+   - `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` (opcional)
+4. Para o backend, use **uma** das opções:
+   - Opção A (recomendada): `FIREBASE_SERVICE_ACCOUNT_JSON` com o JSON completo da service account.
+   - Opção B: `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`.
+5. Faça **Manual Deploy > Clear build cache & deploy**.
+6. Teste em `/login` clicando em **Entrar com Google**.
+
+> Se o botão aparecer desativado, faltam variáveis `NEXT_PUBLIC_FIREBASE_*` no serviço web.
+
+---
+
 ## 📌 Endpoints principais
 
 - `POST /api/auth/register`
