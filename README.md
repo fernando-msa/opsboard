@@ -160,6 +160,13 @@ O projeto já inclui `render.yaml` pronto.
 ---
 
 
+## 🔒 Segurança
+
+- Framework atualizado para **Next.js 14.2.35** para mitigar advisories conhecidos da linha 14.x detectados pelo Dependabot.
+- Recomendado manter Dependabot habilitado e aplicar updates de segurança com prioridade alta/moderada.
+
+---
+
 ## 🔥 Firebase (Google Auth + Firestore)
 
 O projeto suporta autenticação com Google via Firebase Auth e grava eventos de autenticação no Firestore (`auth_events`).
