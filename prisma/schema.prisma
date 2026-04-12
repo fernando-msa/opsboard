@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ServiceStatus {
+  OPERATIONAL
+  DEGRADED
+  DOWN
+}
+
+model Organization {
+  id           String      @id @default(cuid())
+  name         String
+  slug         String      @unique
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  users        User[]
+  tickets      Ticket[]
+  incidents    Incident[]
+  services     Service[]
+}
+
+model User {
+  id             String       @id @default(cuid())
+  email          String       @unique
+  name           String
+  passwordHash   String
+  organizationId String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+}
+
+model Ticket {
+  id             String         @id @default(cuid())
+  title          String
+  description    String
+  status         TicketStatus   @default(OPEN)
+  priority       TicketPriority @default(MEDIUM)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  dueAt          DateTime
+  resolvedAt     DateTime?
+  organizationId String
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([status])
+}
+
+model Incident {
+  id             String        @id @default(cuid())
+  title          String
+  description    String
+  status         ServiceStatus
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  resolvedAt     DateTime?
+  organizationId String
+  serviceId      String?
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  service        Service?      @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+}
+
+model Service {
+  id             String        @id @default(cuid())
+  name           String
+  description    String?
+  status         ServiceStatus @default(OPERATIONAL)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  organizationId String
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  incidents      Incident[]
+
+  @@index([organizationId])
+}
