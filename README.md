@@ -160,6 +160,64 @@ O projeto já inclui `render.yaml` pronto.
 ---
 
 
+## 🛠️ Troubleshooting Render (`P1012: DATABASE_URL not found`)
+
+Se aparecer no log:
+
+`Environment variable not found: DATABASE_URL`
+
+siga este passo a passo completo:
+
+### 1) Criar banco PostgreSQL no Render
+
+1. No painel do Render, clique em **New +**.
+2. Escolha **PostgreSQL**.
+3. Crie o banco na mesma região do serviço web.
+4. Após provisionar, abra o banco e copie a **Internal Database URL**.
+
+### 2) Configurar variáveis no serviço Web
+
+1. Abra seu serviço Web (`opsboard`).
+2. Vá em **Environment**.
+3. Crie/valide as variáveis:
+   - `DATABASE_URL` → cole a Internal Database URL do Postgres.
+   - `JWT_SECRET` → gere um valor forte (mínimo 32+ caracteres).
+   - (opcional) variáveis Firebase (`NEXT_PUBLIC_FIREBASE_*`, `FIREBASE_*`).
+4. Clique em **Save Changes**.
+
+### 3) Fazer deploy limpo
+
+1. Abra a aba **Manual Deploy**.
+2. Clique em **Clear build cache & deploy**.
+3. Aguarde o deploy finalizar.
+
+### 4) Validar no log que está correto
+
+No startup você deve ver algo como:
+
+- `[OpsBoard] DATABASE_URL encontrado. Aplicando migrations...`
+- Em seguida o Next iniciando normalmente.
+
+Se aparecer:
+
+- `[OpsBoard] AVISO: DATABASE_URL não definido...`
+
+então a variável ainda não está disponível no serviço (ou foi salva no serviço errado).
+
+### 5) Testes rápidos pós-deploy
+
+1. Acesse `/register` e crie conta.
+2. Faça login em `/login`.
+3. Confirme que `/dashboard` abre sem erro.
+
+### 6) (Opcional) carregar dados demo
+
+Se quiser dados de demonstração (`admin@demo.com`), execute seed uma vez no ambiente com banco configurado.
+
+Com a versão atual, o start script evita crash imediato quando `DATABASE_URL` não existe, mas **as funcionalidades que dependem de banco só funcionam após configurar `DATABASE_URL`**.
+
+---
+
 ## 🔒 Segurança
 
 - Framework atualizado para **Next.js 14.2.35** para mitigar advisories conhecidos da linha 14.x detectados pelo Dependabot.
