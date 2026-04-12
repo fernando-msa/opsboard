@@ -108,14 +108,19 @@ Ajuste os valores no `.env`:
 npm install
 ```
 
-### 4) Rodar migrações + seed
+### 4) Rodar migrações
 
 ```bash
 npx prisma migrate deploy
+```
+
+### 5) (Opcional) Carregar dados demo
+
+```bash
 npm run prisma:seed
 ```
 
-### 5) Iniciar aplicação
+### 6) Iniciar aplicação
 
 ```bash
 npm run dev
@@ -129,6 +134,8 @@ Aplicação disponível em `http://localhost:3000`.
 
 - **Email:** `admin@demo.com`
 - **Senha:** `demo1234`
+
+> Observação: essa conta só existe após executar `npm run prisma:seed`.
 
 ---
 
@@ -145,7 +152,7 @@ O projeto já inclui `render.yaml` pronto.
    - `DATABASE_URL`
    - `JWT_SECRET`
 5. O Render executará:
-   - `npm ci && npx prisma migrate deploy && npm run build`
+   - `yarn install && yarn build` (o script `build` já executa `prisma migrate deploy`)
    - `npm run start`
 
 > O start usa `process.env.PORT` automaticamente via script: `next start -p ${PORT:-3000}`.
