@@ -186,6 +186,8 @@ O projeto suporta autenticação com Google via Firebase Auth e grava eventos de
   - `FIREBASE_CLIENT_EMAIL`
   - `FIREBASE_PRIVATE_KEY`
 
+- Se as variáveis `NEXT_PUBLIC_FIREBASE_*` não estiverem definidas, o botão Google aparece desativado (sem quebrar build/deploy).
+
 > Dica: para `FIREBASE_PRIVATE_KEY`, mantenha as quebras de linha escapadas (`\n`) no provider de env vars.
 
 ---
