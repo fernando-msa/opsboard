@@ -152,8 +152,8 @@ O projeto já inclui `render.yaml` pronto.
    - `DATABASE_URL`
    - `JWT_SECRET`
 5. O Render executará:
-   - `yarn install && yarn build` (o script `build` já executa `prisma migrate deploy`)
-   - `npm run start`
+   - `yarn install && yarn build`
+   - `npm run start` (o script `start` executa `prisma migrate deploy` antes de iniciar o Next.js)
 
 > O start usa `process.env.PORT` automaticamente via script: `next start -p ${PORT:-3000}`.
 
