@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { GoogleAuthButton } from '@/components/google-auth-button';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -38,6 +39,8 @@ export default function RegisterPage() {
         <input className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2" placeholder="Empresa" value={form.organizationName} onChange={(e) => setForm({ ...form, organizationName: e.target.value })} />
         {error ? <p className="text-sm text-rose-400">{error}</p> : null}
         <button className="w-full rounded-lg bg-brand-600 px-4 py-2 font-semibold hover:bg-brand-500">Criar conta</button>
+        <div className="text-center text-xs text-slate-500">ou</div>
+        <GoogleAuthButton mode="register" />
       </form>
     </main>
   );
