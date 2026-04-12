@@ -3,17 +3,21 @@ import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+type RouteContext = { params: Promise<{ id: string }> };
+
+export async function PUT(request: Request, context: RouteContext) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
 
-  const existing = await prisma.ticket.findFirst({ where: { id: params.id, organizationId: session.organizationId } });
+  const { id } = await context.params;
+
+  const existing = await prisma.ticket.findFirst({ where: { id, organizationId: session.organizationId } });
   if (!existing) return NextResponse.json({ error: 'Ticket não encontrado' }, { status: 404 });
 
   const { title, description, status, priority } = await request.json();
 
   const ticket = await prisma.ticket.update({
-    where: { id: params.id },
+    where: { id },
     data: {
       title,
       description,
@@ -26,13 +30,15 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   return NextResponse.json(ticket);
 }
 
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_: Request, context: RouteContext) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
 
-  const existing = await prisma.ticket.findFirst({ where: { id: params.id, organizationId: session.organizationId } });
+  const { id } = await context.params;
+
+  const existing = await prisma.ticket.findFirst({ where: { id, organizationId: session.organizationId } });
   if (!existing) return NextResponse.json({ error: 'Ticket não encontrado' }, { status: 404 });
 
-  await prisma.ticket.delete({ where: { id: params.id } });
+  await prisma.ticket.delete({ where: { id } });
   return NextResponse.json({ ok: true });
 }

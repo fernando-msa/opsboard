@@ -7,9 +7,11 @@ const statusMap: Record<string, string> = {
   DOWN: 'Fora do ar'
 };
 
-export default async function PublicStatusPage({ params }: { params: { slug: string } }) {
+export default async function PublicStatusPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+
   const org = await prisma.organization.findUnique({
-    where: { slug: params.slug },
+    where: { slug },
     include: {
       services: { orderBy: { name: 'asc' } },
       incidents: { orderBy: { createdAt: 'desc' }, take: 10 }
