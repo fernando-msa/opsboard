@@ -220,7 +220,7 @@ Com a versão atual, o start script evita crash imediato quando `DATABASE_URL` n
 
 ## 🔒 Segurança
 
-- Framework atualizado para **Next.js 14.2.35** para mitigar advisories conhecidos da linha 14.x detectados pelo Dependabot.
+- Framework atualizado para **Next.js 16.0.10** (com React 19.2.0) para mitigar os advisories ativos detectados pelo Dependabot.
 - Recomendado manter Dependabot habilitado e aplicar updates de segurança com prioridade alta/moderada.
 
 ---
