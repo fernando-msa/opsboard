@@ -222,6 +222,7 @@ Com a versão atual, o start script evita crash imediato quando `DATABASE_URL` n
 
 - Framework atualizado para **Next.js 16.0.10** (com React 19.2.0) para mitigar os advisories ativos detectados pelo Dependabot.
 - Recomendado manter Dependabot habilitado e aplicar updates de segurança com prioridade alta/moderada.
+- Em Next.js 16, mantenha apenas `proxy.ts` (sem `middleware.ts`). O script `prebuild` já remove `middleware.ts` caso exista em cache antigo.
 
 ---
 
