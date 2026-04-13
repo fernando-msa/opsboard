@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signInWithPopup } from 'firebase/auth';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { FirebasePublicConfig, getFirebaseClient, initAnalytics, loadFirebasePublicConfig } from '@/lib/firebase-client';
+import { FirebasePublicConfig, getFirebaseClient, getMissingFirebasePublicConfig, initAnalytics, loadFirebasePublicConfig } from '@/lib/firebase-client';
 
 export function GoogleAuthButton({ mode }: { mode: 'login' | 'register' }) {
   const [loading, setLoading] = useState(false);
@@ -22,15 +22,16 @@ export function GoogleAuthButton({ mode }: { mode: 'login' | 'register' }) {
       if (cancelled) return;
 
       setFirebaseConfig(config);
-      if (!config) {
+      const missing = getMissingFirebasePublicConfig(config);
+      if (missing.length > 0) {
         setEnabled(false);
-        setMissingConfig(['NEXT_PUBLIC_FIREBASE_API_KEY', 'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN', 'NEXT_PUBLIC_FIREBASE_PROJECT_ID', 'NEXT_PUBLIC_FIREBASE_APP_ID']);
+        setMissingConfig(missing);
         return;
       }
 
       setEnabled(true);
       setMissingConfig([]);
-      initAnalytics(config);
+      void initAnalytics(config);
     }
 
     void loadConfig();
@@ -46,11 +47,16 @@ export function GoogleAuthButton({ mode }: { mode: 'login' | 'register' }) {
 
     try {
       const config = firebaseConfig ?? (await loadFirebasePublicConfig());
+      const missing = getMissingFirebasePublicConfig(config);
+      if (missing.length > 0) {
+        setMissingConfig(missing);
+        throw new Error(`Google Auth indisponível no cliente. Variáveis ausentes: ${missing.join(', ')}.`);
+      }
+
       const firebase = config ? getFirebaseClient(config) : null;
       if (!firebase) {
-        const details = missingConfig.length > 0 ? ` Faltando: ${missingConfig.join(', ')}.` : '';
         throw new Error(
-          `Google Auth indisponível no cliente.${details} Verifique a rota /api/firebase-config e as variáveis do Render.`
+          'Google Auth indisponível no cliente. Verifique a rota /api/firebase-config e as variáveis do Render.'
         );
       }
 
