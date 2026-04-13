@@ -51,8 +51,8 @@ export function getFirebaseClient(config: FirebasePublicConfig) {
   };
 }
 
-export async function initAnalytics() {
-  const app = getFirebaseApp();
+export async function initAnalytics(config: FirebasePublicConfig) {
+  const app = getFirebaseApp(config);
   if (!app) return null;
 
   const supported = await isSupported();
