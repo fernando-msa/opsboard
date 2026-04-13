@@ -4,22 +4,40 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signInWithPopup } from 'firebase/auth';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { getFirebaseClient, getMissingFirebasePublicConfig, initAnalytics } from '@/lib/firebase-client';
+import { FirebasePublicConfig, getFirebaseClient, initAnalytics, loadFirebasePublicConfig } from '@/lib/firebase-client';
 
 export function GoogleAuthButton({ mode }: { mode: 'login' | 'register' }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [enabled, setEnabled] = useState(true);
   const [missingConfig, setMissingConfig] = useState<string[]>([]);
+  const [firebaseConfig, setFirebaseConfig] = useState<FirebasePublicConfig | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    initAnalytics();
-    const firebase = getFirebaseClient();
-    if (!firebase) {
-      setEnabled(false);
-      setMissingConfig(getMissingFirebasePublicConfig());
+    let cancelled = false;
+
+    async function loadConfig() {
+      const config = await loadFirebasePublicConfig();
+      if (cancelled) return;
+
+      setFirebaseConfig(config);
+      if (!config) {
+        setEnabled(false);
+        setMissingConfig(['NEXT_PUBLIC_FIREBASE_API_KEY', 'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN', 'NEXT_PUBLIC_FIREBASE_PROJECT_ID', 'NEXT_PUBLIC_FIREBASE_APP_ID']);
+        return;
+      }
+
+      setEnabled(true);
+      setMissingConfig([]);
+      initAnalytics(config);
     }
+
+    void loadConfig();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   async function handleGoogleAuth() {
@@ -27,12 +45,12 @@ export function GoogleAuthButton({ mode }: { mode: 'login' | 'register' }) {
     setError('');
 
     try {
-      const firebase = getFirebaseClient();
+      const config = firebaseConfig ?? (await loadFirebasePublicConfig());
+      const firebase = config ? getFirebaseClient(config) : null;
       if (!firebase) {
-        const missing = getMissingFirebasePublicConfig();
-        const details = missing.length > 0 ? ` Faltando: ${missing.join(', ')}.` : '';
+        const details = missingConfig.length > 0 ? ` Faltando: ${missingConfig.join(', ')}.` : '';
         throw new Error(
-          `Google Auth indisponível no bundle do cliente.${details} Após salvar no Render, faça novo deploy para rebuild.`
+          `Google Auth indisponível no cliente.${details} Verifique a rota /api/firebase-config e as variáveis do Render.`
         );
       }
 
@@ -79,9 +97,8 @@ export function GoogleAuthButton({ mode }: { mode: 'login' | 'register' }) {
         <p className="text-xs text-amber-400">
           Google Auth desativado.
           {missingConfig.length > 0
-            ? ` Variáveis ausentes no cliente: ${missingConfig.join(', ')}.`
-            : ' Revise as variáveis NEXT_PUBLIC_FIREBASE_* no deploy.'}{' '}
-          Após alterar no Render, faça novo deploy.
+            ? ` Variáveis ausentes: ${missingConfig.join(', ')}.`
+            : ' Revise a rota /api/firebase-config e o deploy.'}
         </p>
       ) : null}
       {error ? <p className="text-xs text-rose-400">{error}</p> : null}
