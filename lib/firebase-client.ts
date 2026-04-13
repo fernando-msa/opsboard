@@ -13,8 +13,19 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
+const requiredConfig: Array<[key: string, value: string | undefined]> = [
+  ['NEXT_PUBLIC_FIREBASE_API_KEY', firebaseConfig.apiKey],
+  ['NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN', firebaseConfig.authDomain],
+  ['NEXT_PUBLIC_FIREBASE_PROJECT_ID', firebaseConfig.projectId],
+  ['NEXT_PUBLIC_FIREBASE_APP_ID', firebaseConfig.appId]
+];
+
+export function getMissingFirebasePublicConfig() {
+  return requiredConfig.filter(([, value]) => !value).map(([key]) => key);
+}
+
 function hasFirebaseConfig() {
-  return Boolean(firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.projectId && firebaseConfig.appId);
+  return getMissingFirebasePublicConfig().length === 0;
 }
 
 function getFirebaseApp() {

@@ -159,7 +159,6 @@ O projeto já inclui `render.yaml` pronto.
 
 ---
 
-
 ## 🛠️ Troubleshooting Render (`P1012: DATABASE_URL not found`)
 
 Se aparecer no log:
@@ -263,13 +262,25 @@ O projeto suporta autenticação com Google via Firebase Auth e grava eventos de
    - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
    - `NEXT_PUBLIC_FIREBASE_APP_ID`
    - `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` (opcional)
-4. Para o backend, use **uma** das opções:
-   - Opção A (recomendada): `FIREBASE_SERVICE_ACCOUNT_JSON` com o JSON completo da service account.
-   - Opção B: `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`.
+4. Para o backend, use **uma** das opções: Opção A (recomendada) `FIREBASE_SERVICE_ACCOUNT_JSON` com o JSON completo da service account; Opção A2 (local/dev) `FIREBASE_SERVICE_ACCOUNT_PATH` com o caminho absoluto para o arquivo JSON da service account; Opção B `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`.
 5. Faça **Manual Deploy > Clear build cache & deploy**.
 6. Teste em `/login` clicando em **Entrar com Google**.
 
 > Se o botão aparecer desativado, faltam variáveis `NEXT_PUBLIC_FIREBASE_*` no serviço web.
+
+### Usar arquivo da service account no Windows (dev local)
+
+Se você baixou o arquivo no Downloads (ex.: `opsboard-msa-firebase-adminsdk-fbsvc-d9dbd7a423.json`), configure no `.env`:
+
+```env
+FIREBASE_SERVICE_ACCOUNT_PATH="C:\\Users\\admin\\Downloads\\opsboard-msa-firebase-adminsdk-fbsvc-d9dbd7a423.json"
+```
+
+Observações:
+
+- O arquivo é `.json` (não `.jason`).
+- Não faça commit desse arquivo.
+- Em produção (Render), prefira `FIREBASE_SERVICE_ACCOUNT_JSON` diretamente no painel de Environment.
 
 ---
 
@@ -296,4 +307,3 @@ O projeto suporta autenticação com Google via Firebase Auth e grava eventos de
 - Integração com monitoramento real (Ping, APM, Uptime checks).
 - Histórico de auditoria.
 - Webhooks para incident lifecycle.
-

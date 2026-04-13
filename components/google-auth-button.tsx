@@ -4,12 +4,13 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signInWithPopup } from 'firebase/auth';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { getFirebaseClient, initAnalytics } from '@/lib/firebase-client';
+import { getFirebaseClient, getMissingFirebasePublicConfig, initAnalytics } from '@/lib/firebase-client';
 
 export function GoogleAuthButton({ mode }: { mode: 'login' | 'register' }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [enabled, setEnabled] = useState(true);
+  const [missingConfig, setMissingConfig] = useState<string[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -17,6 +18,7 @@ export function GoogleAuthButton({ mode }: { mode: 'login' | 'register' }) {
     const firebase = getFirebaseClient();
     if (!firebase) {
       setEnabled(false);
+      setMissingConfig(getMissingFirebasePublicConfig());
     }
   }, []);
 
@@ -27,7 +29,11 @@ export function GoogleAuthButton({ mode }: { mode: 'login' | 'register' }) {
     try {
       const firebase = getFirebaseClient();
       if (!firebase) {
-        throw new Error('Google Auth indisponível: configure as variáveis NEXT_PUBLIC_FIREBASE_* no deploy.');
+        const missing = getMissingFirebasePublicConfig();
+        const details = missing.length > 0 ? ` Faltando: ${missing.join(', ')}.` : '';
+        throw new Error(
+          `Google Auth indisponível no bundle do cliente.${details} Após salvar no Render, faça novo deploy para rebuild.`
+        );
       }
 
       const authResult = await signInWithPopup(firebase.auth, firebase.provider);
@@ -69,7 +75,15 @@ export function GoogleAuthButton({ mode }: { mode: 'login' | 'register' }) {
       >
         {loading ? 'Conectando...' : 'Entrar com Google'}
       </button>
-      {!enabled ? <p className="text-xs text-amber-400">Google Auth desativado: configure Firebase para habilitar.</p> : null}
+      {!enabled ? (
+        <p className="text-xs text-amber-400">
+          Google Auth desativado.
+          {missingConfig.length > 0
+            ? ` Variáveis ausentes no cliente: ${missingConfig.join(', ')}.`
+            : ' Revise as variáveis NEXT_PUBLIC_FIREBASE_* no deploy.'}{' '}
+          Após alterar no Render, faça novo deploy.
+        </p>
+      ) : null}
       {error ? <p className="text-xs text-rose-400">{error}</p> : null}
     </div>
   );
