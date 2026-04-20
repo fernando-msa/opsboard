@@ -21,20 +21,27 @@ export default function LoginPage() {
     setIsLoading(true);
     setError('');
 
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: quickEmail, password: 'demo1234' })
-    });
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: quickEmail, password: 'demo1234' })
+      });
 
-    if (!response.ok) {
-      setError('Falha no login. Tente novamente.');
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || `Erro ${response.status}: Falha ao fazer login. Verifique se o banco de dados foi inicializado.`);
+        setIsLoading(false);
+        return;
+      }
+
+      router.push('/dashboard');
+      router.refresh();
+    } catch (err) {
+      setError('Erro de conexão. Verifique se o servidor está rodando.');
       setIsLoading(false);
-      return;
     }
-
-    router.push('/dashboard');
-    router.refresh();
   }
 
   async function handleSubmit(event: FormEvent) {
@@ -42,20 +49,27 @@ export default function LoginPage() {
     setIsLoading(true);
     setError('');
 
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
 
-    if (!response.ok) {
-      setError('Credenciais inválidas.');
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || `Erro ${response.status}: Credenciais inválidas ou servidor indisponível.`);
+        setIsLoading(false);
+        return;
+      }
+
+      router.push('/dashboard');
+      router.refresh();
+    } catch (err) {
+      setError('Erro de conexão. Verifique se o servidor está rodando.');
       setIsLoading(false);
-      return;
     }
-
-    router.push('/dashboard');
-    router.refresh();
   }
 
   return (
