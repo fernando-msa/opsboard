@@ -1,5 +1,7 @@
 # OpsBoard
 
+[![Security Audit](https://github.com/fernando-msa/opsboard/actions/workflows/security-audit.yml/badge.svg)](https://github.com/fernando-msa/opsboard/actions/workflows/security-audit.yml)
+
 OpsBoard é uma plataforma B2B para centralizar suporte, SLA, incidentes e status page pública em um único fluxo. A proposta é simples: transformar operação dispersa em visibilidade, comunicação e rastreabilidade para o time interno e para o cliente.
 
 ## Por que isso importa
