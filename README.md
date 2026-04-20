@@ -41,7 +41,7 @@ OpsBoard é uma plataforma B2B para centralizar suporte, SLA, incidentes e statu
 
 ## Stack
 
-- Next.js 16.0.10 com App Router e API Routes.
+- Next.js 16.2.4 com App Router e API Routes.
 - React 19.
 - TypeScript.
 - PostgreSQL.
@@ -56,6 +56,11 @@ OpsBoard é uma plataforma B2B para centralizar suporte, SLA, incidentes e statu
 - Verificação de pertencimento do `serviceId` à mesma organização antes de atualizar incidentes.
 - Verificação do token do Google no backend antes de criar sessão.
 - Isolamento por `organizationId` em tickets, incidentes, serviços e usuários.
+- Headers de hardening HTTP (X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy e frame-ancestors).
+
+Relatório técnico completo da remediação:
+
+- `docs/security-remediation-report.md`
 
 ## Estrutura do projeto
 
