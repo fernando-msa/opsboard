@@ -178,10 +178,20 @@ Se quiser validar a aplicação depois do deploy:
 
 O seed cria:
 
-- Uma empresa demo.
-- Usuário demo com tickets históricos.
-- Incidentes já vinculados a serviços.
-- Dados suficientes para demonstrar SLA, operação e status page pública.
+- Uma empresa demo com múltiplos serviços, incidentes e histórico de tickets.
+- Contas demo para testar o produto sem precisar criar usuários do zero.
+- Tickets em aberto, em andamento, resolvidos e fechados, com SLA variado.
+- Incidentes ativos e resolvidos para deixar a status page pública mais realista.
+
+Contas demo prontas:
+
+- `admin@demo.com` / `demo1234`
+- `suporte@demo.com` / `demo1234`
+- `ops@demo.com` / `demo1234`
+
+Empresa demo:
+
+- Slug: `demo-company`
 
 ## Próximos passos naturais
 
