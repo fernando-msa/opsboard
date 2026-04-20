@@ -1,106 +1,96 @@
 # OpsBoard
 
-SaaS B2B para monitoramento de **SLA**, **incidentes** e **status page pública**, com arquitetura multi-tenant.
+OpsBoard é uma plataforma B2B para centralizar suporte, SLA, incidentes e status page pública em um único fluxo. A proposta é simples: transformar operação dispersa em visibilidade, comunicação e rastreabilidade para o time interno e para o cliente.
 
-## ✨ Funcionalidades do MVP
+## Por que isso importa
 
-- **Autenticação JWT** (registro, login, logout) com cookie HTTP-only.
-- **Multi-tenant por organização** (cada usuário pertence a uma empresa).
-- **Criação de organização no registro** + serviços padrão para status page.
-- **CRUD de tickets** (API + UI):
-  - título
-  - descrição
-  - status
-  - prioridade
-  - data de abertura (`createdAt`)
-  - data de resolução (`resolvedAt`)
-- **SLA Dashboard**:
-  - tempo médio de atendimento
-  - % de tickets dentro do prazo
-- **Incidentes manuais** com criação, atualização e exclusão:
-  - operacional
-  - degradado
-  - fora do ar
-- **Status Page pública por empresa** (`/status/:slug`).
-- **UI estilo SaaS** com cards de métricas e tabela de tickets.
+- Menos troca de contexto entre suporte, produto e operações.
+- Uma visão única de tickets, incidentes e saúde dos serviços.
+- Status page pública por empresa, pronta para comunicar o cliente sem planilhas ou ferramentas extras.
+- Arquitetura multi-tenant com isolamento por organização.
 
----
+## Produto em ação
 
-## 🧱 Stack
+<table>
+  <tr>
+    <td><img src="public/readme/opsboard-dashboard.png" alt="Dashboard do OpsBoard" /></td>
+    <td><img src="public/readme/opsboard-status-page.png" alt="Status page pública do OpsBoard" /></td>
+  </tr>
+  <tr>
+    <td colspan="2"><img src="public/readme/opsboard-demo.gif" alt="Demonstração animada do OpsBoard" /></td>
+  </tr>
+</table>
 
-- **Next.js 14** (App Router + API Routes)
-- **TypeScript**
-- **PostgreSQL**
-- **Prisma ORM**
-- **TailwindCSS**
+## O que o produto entrega
 
----
+- Autenticação com JWT em cookie HTTP-only.
+- Cadastro que cria organização, usuário e serviços padrão em um único passo.
+- Gestão de tickets com SLA, prioridade, abertura e resolução.
+- Gestão de incidentes com impacto automático nos serviços.
+- Status page pública por empresa em `/status/:slug`.
+- Suporte a Google Auth via Firebase.
+- Seed demo para apresentar o produto sem montar dados do zero.
 
-## 📁 Estrutura do projeto
+## Fluxo ponta a ponta
+
+1. O usuário se registra e já entra em uma organização isolada.
+2. O dashboard mostra tickets, SLA e métricas operacionais.
+3. O time cria tickets e incidentes no mesmo ambiente.
+4. Quando um incidente afeta um serviço, o status do serviço é refletido na status page pública.
+5. O cliente acessa a página pública da organização e acompanha a situação em tempo real.
+
+## Stack
+
+- Next.js 16.0.10 com App Router e API Routes.
+- React 19.
+- TypeScript.
+- PostgreSQL.
+- Prisma ORM.
+- TailwindCSS.
+- Firebase Auth e Firebase Admin para login com Google.
+
+## Segurança e isolamento
+
+- Cookie de sessão com `httpOnly`, `sameSite=lax` e `secure` em produção.
+- Validação de payload nas rotas mutadoras.
+- Verificação de pertencimento do `serviceId` à mesma organização antes de atualizar incidentes.
+- Verificação do token do Google no backend antes de criar sessão.
+- Isolamento por `organizationId` em tickets, incidentes, serviços e usuários.
+
+## Estrutura do projeto
 
 ```bash
 .
 ├── app/
-│   ├── api/                # Endpoints REST (auth, tickets, incidentes, SLA)
+│   ├── api/                # Auth, tickets, incidentes, SLA, Firebase config
 │   ├── dashboard/          # Dashboard interno
 │   ├── incidents/          # Gestão de incidentes
-│   ├── login/              # Tela de login
-│   ├── register/           # Tela de cadastro
-│   └── status/[slug]/      # Status page pública por organização
-├── components/             # Componentes de UI
-├── lib/                    # Helpers (auth JWT, prisma, SLA)
-├── prisma/
-│   ├── migrations/         # Migração inicial
-│   ├── schema.prisma       # Modelagem completa
-│   └── seed.ts             # Seed demo
-├── render.yaml             # Config para deploy no Render
-└── README.md
+│   ├── login/              # Login
+│   ├── register/           # Cadastro
+│   └── status/[slug]/      # Status page pública
+├── components/             # Interface e formulários
+├── lib/                    # Auth, Prisma, Firebase e cálculo de SLA
+├── prisma/                 # Schema, migrations e seed
+├── public/readme/          # Screenshots e GIF do produto
+└── render.yaml             # Deploy no Render
 ```
 
----
-
-## 🗃️ Modelagem Prisma
-
-Entidades principais:
-
-- `Organization`
-- `User`
-- `Ticket`
-- `Incident`
-- `Service`
-
-Enums:
-
-- `TicketStatus`
-- `TicketPriority`
-- `ServiceStatus`
-
-Relações:
-
-- Uma organização possui vários usuários, tickets, incidentes e serviços.
-- Todo ticket/incidente é isolado por `organizationId`.
-- Status page usa `slug` único por organização.
-
----
-
-## 🚀 Como rodar localmente
+## Como rodar localmente
 
 ### 1) Pré-requisitos
 
 - Node.js 20+
 - PostgreSQL
 
-### 2) Configurar variáveis
+### 2) Variáveis de ambiente
 
-```bash
-cp .env.example .env
-```
-
-Ajuste os valores no `.env`:
+Crie um arquivo `.env` com pelo menos:
 
 - `DATABASE_URL`
 - `JWT_SECRET`
 - `PORT`
+
+Se for usar login com Google, configure também as variáveis `NEXT_PUBLIC_FIREBASE_*` e `FIREBASE_*` descritas abaixo.
 
 ### 3) Instalar dependências
 
@@ -108,202 +98,93 @@ Ajuste os valores no `.env`:
 npm install
 ```
 
-### 4) Rodar migrações
+### 4) Aplicar migrations
 
 ```bash
 npx prisma migrate deploy
 ```
 
-### 5) (Opcional) Carregar dados demo
+### 5) Carregar dados demo
 
 ```bash
 npm run prisma:seed
 ```
 
-### 6) Iniciar aplicação
+### 6) Subir a aplicação
 
 ```bash
 npm run dev
 ```
 
-Aplicação disponível em `http://localhost:3000`.
+Depois, acesse `http://localhost:3000`.
 
----
+## Conta demo
 
-## 🧪 Conta demo (seed)
+- E-mail: `admin@demo.com`
+- Senha: `demo1234`
 
-- **Email:** `admin@demo.com`
-- **Senha:** `demo1234`
+Essa conta é criada pelo seed e já vem com dados para demonstrar tickets, SLA e incidentes.
 
-> Observação: essa conta só existe após executar `npm run prisma:seed`.
+## Google Auth
 
----
+O login social usa Firebase Auth no cliente e Firebase Admin no backend.
 
-## 🌐 Deploy no Render
+### Variáveis do frontend
 
-O projeto já inclui `render.yaml` pronto.
+- `NEXT_PUBLIC_FIREBASE_API_KEY`
+- `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
+- `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
+- `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
+- `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
+- `NEXT_PUBLIC_FIREBASE_APP_ID`
+- `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID`
 
-### Passo a passo
+### Variáveis do backend
+
+- `FIREBASE_PROJECT_ID`
+- `FIREBASE_CLIENT_EMAIL`
+- `FIREBASE_PRIVATE_KEY`
+
+Se as variáveis públicas não estiverem configuradas, o botão de Google Auth fica desativado sem quebrar o deploy.
+
+## Deploy no Render
+
+O projeto já inclui `render.yaml`.
 
 1. Faça push do repositório no GitHub.
-2. No Render, clique em **New + > Blueprint**.
+2. No Render, crie um novo Blueprint.
 3. Conecte o repositório.
-4. Configure as variáveis de ambiente:
-   - `DATABASE_URL`
-   - `JWT_SECRET`
-5. O Render executará:
-   - `yarn install && yarn build`
-   - `npm run start` (o script `start` executa `prisma migrate deploy` antes de iniciar o Next.js)
+4. Configure `DATABASE_URL` e `JWT_SECRET`.
+5. Faça o deploy.
 
-> O start usa `process.env.PORT` automaticamente via script: `next start -p ${PORT:-3000}`.
+O script de start executa a migration antes de iniciar o Next.js.
 
----
+## Troubleshooting do Render
 
-## 🛠️ Troubleshooting Render (`P1012: DATABASE_URL not found`)
+Se aparecer `Environment variable not found: DATABASE_URL`, confirme:
 
-Se aparecer no log:
+1. O banco PostgreSQL foi criado na mesma região do serviço web.
+2. A `Internal Database URL` foi copiada para o serviço certo.
+3. O serviço web recebeu `DATABASE_URL` e `JWT_SECRET`.
+4. Você rodou um novo deploy após salvar as variáveis.
 
-`Environment variable not found: DATABASE_URL`
+Se quiser validar a aplicação depois do deploy:
 
-siga este passo a passo completo:
-
-### 1) Criar banco PostgreSQL no Render
-
-1. No painel do Render, clique em **New +**.
-2. Escolha **PostgreSQL**.
-3. Crie o banco na mesma região do serviço web.
-4. Após provisionar, abra o banco e copie a **Internal Database URL**.
-
-### 2) Configurar variáveis no serviço Web
-
-1. Abra seu serviço Web (`opsboard`).
-2. Vá em **Environment**.
-3. Crie/valide as variáveis:
-   - `DATABASE_URL` → cole a Internal Database URL do Postgres.
-   - `JWT_SECRET` → gere um valor forte (mínimo 32+ caracteres).
-   - (opcional) variáveis Firebase (`NEXT_PUBLIC_FIREBASE_*`, `FIREBASE_*`).
-4. Clique em **Save Changes**.
-
-### 3) Fazer deploy limpo
-
-1. Abra a aba **Manual Deploy**.
-2. Clique em **Clear build cache & deploy**.
-3. Aguarde o deploy finalizar.
-
-### 4) Validar no log que está correto
-
-No startup você deve ver algo como:
-
-- `[OpsBoard] DATABASE_URL encontrado. Aplicando migrations...`
-- Em seguida o Next iniciando normalmente.
-
-Se aparecer:
-
-- `[OpsBoard] AVISO: DATABASE_URL não definido...`
-
-então a variável ainda não está disponível no serviço (ou foi salva no serviço errado).
-
-### 5) Testes rápidos pós-deploy
-
-1. Acesse `/register` e crie conta.
+1. Abra `/register` e crie uma conta.
 2. Faça login em `/login`.
-3. Confirme que `/dashboard` abre sem erro.
+3. Verifique `/dashboard` e `/status/:slug`.
 
-### 6) (Opcional) carregar dados demo
+## Seed e demo
 
-Se quiser dados de demonstração (`admin@demo.com`), execute seed uma vez no ambiente com banco configurado.
+O seed cria:
 
-Com a versão atual, o start script evita crash imediato quando `DATABASE_URL` não existe, mas **as funcionalidades que dependem de banco só funcionam após configurar `DATABASE_URL`**.
+- Uma empresa demo.
+- Usuário demo com tickets históricos.
+- Incidentes já vinculados a serviços.
+- Dados suficientes para demonstrar SLA, operação e status page pública.
 
----
+## Próximos passos naturais
 
-## 🔒 Segurança
-
-- Framework atualizado para **Next.js 16.0.10** (com React 19.2.0) para mitigar os advisories ativos detectados pelo Dependabot.
-- Recomendado manter Dependabot habilitado e aplicar updates de segurança com prioridade alta/moderada.
-- Em Next.js 16, mantenha apenas `proxy.ts` (sem `middleware.ts`). O script `prebuild` já remove `middleware.ts` caso exista em cache antigo.
-
----
-
-## 🔥 Firebase (Google Auth + Firestore)
-
-O projeto suporta autenticação com Google via Firebase Auth e grava eventos de autenticação no Firestore (`auth_events`).
-
-### Variáveis necessárias
-
-- Frontend (`NEXT_PUBLIC_*`):
-  - `NEXT_PUBLIC_FIREBASE_API_KEY`
-  - `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
-  - `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
-  - `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
-  - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
-  - `NEXT_PUBLIC_FIREBASE_APP_ID`
-  - `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID`
-- Backend (Firebase Admin):
-  - `FIREBASE_PROJECT_ID`
-  - `FIREBASE_CLIENT_EMAIL`
-  - `FIREBASE_PRIVATE_KEY`
-
-- Se as variáveis `NEXT_PUBLIC_FIREBASE_*` não estiverem definidas, o botão Google aparece desativado (sem quebrar build/deploy).
-
-> Dica: para `FIREBASE_PRIVATE_KEY`, mantenha as quebras de linha escapadas (`\n`) no provider de env vars.
-
----
-
-### Ativar Google Auth no Render (checklist rápido)
-
-1. No Firebase Console, habilite **Authentication > Sign-in method > Google**.
-2. Em **Authentication > Settings > Authorized domains**, adicione seu domínio do Render (`*.onrender.com`) e domínio custom se houver.
-3. No Render (Web Service > Environment), configure:
-   - `NEXT_PUBLIC_FIREBASE_API_KEY`
-   - `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
-   - `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
-   - `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
-   - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
-   - `NEXT_PUBLIC_FIREBASE_APP_ID`
-   - `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` (opcional)
-4. Para o backend, use **uma** das opções: Opção A (recomendada) `FIREBASE_SERVICE_ACCOUNT_JSON` com o JSON completo da service account; Opção A2 (local/dev) `FIREBASE_SERVICE_ACCOUNT_PATH` com o caminho absoluto para o arquivo JSON da service account; Opção B `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`.
-5. Faça **Manual Deploy > Clear build cache & deploy**.
-6. Teste em `/login` clicando em **Entrar com Google**.
-
-> Se o botão aparecer desativado, faltam variáveis `NEXT_PUBLIC_FIREBASE_*` no serviço web.
-
-### Usar arquivo da service account no Windows (dev local)
-
-Se você baixou o arquivo no Downloads (ex.: `opsboard-msa-firebase-adminsdk-fbsvc-d9dbd7a423.json`), configure no `.env`:
-
-```env
-FIREBASE_SERVICE_ACCOUNT_PATH="C:\\Users\\admin\\Downloads\\opsboard-msa-firebase-adminsdk-fbsvc-d9dbd7a423.json"
-```
-
-Observações:
-
-- O arquivo é `.json` (não `.jason`).
-- Não faça commit desse arquivo.
-- Em produção (Render), prefira `FIREBASE_SERVICE_ACCOUNT_JSON` diretamente no painel de Environment.
-
----
-
-## 📌 Endpoints principais
-
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `POST /api/auth/logout`
-- `POST /api/auth/google`
-- `GET /api/me`
-- `GET/POST /api/tickets`
-- `PUT/DELETE /api/tickets/:id`
-- `GET/POST /api/incidents`
-- `PUT/DELETE /api/incidents/:id`
-- `GET /api/services`
-- `GET /api/sla`
-
----
-
-## 🔮 Próximos passos sugeridos
-
-- RBAC (Owner/Admin/Agent).
-- Notificações (e-mail/Slack) em incidentes.
-- Integração com monitoramento real (Ping, APM, Uptime checks).
-- Histórico de auditoria.
-- Webhooks para incident lifecycle.
+1. Conectar métricas do dashboard com um pipeline real de incidentes.
+2. Adicionar notificações por e-mail ou Slack.
+3. Criar páginas de marketing e pricing para transformar o produto em uma oferta comercial completa.

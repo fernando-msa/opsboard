@@ -11,7 +11,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:seed": "tsx prisma/seed.ts",
-    "prebuild": "rm -f middleware.ts"
+    "prebuild": "node -e \"const fs=require('fs'); try{fs.unlinkSync('middleware.ts')}catch{}\""
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
