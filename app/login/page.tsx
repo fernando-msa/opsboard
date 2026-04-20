@@ -6,8 +6,8 @@ import { GoogleAuthButton } from '@/components/google-auth-button';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('admin@demo.com');
+  const [password, setPassword] = useState('demo1234');
   const [error, setError] = useState('');
 
   async function handleSubmit(event: FormEvent) {
@@ -33,6 +33,10 @@ export default function LoginPage() {
     <main className="mx-auto flex min-h-screen max-w-md items-center px-6">
       <form onSubmit={handleSubmit} className="card w-full space-y-4">
         <h1 className="text-2xl font-semibold">Entrar no OpsBoard</h1>
+        <div className="rounded-lg bg-slate-900 p-3 text-xs text-slate-400">
+          <p className="mb-2">Demo: use as credenciais pré-preenchidas</p>
+          <p>admin@demo.com / demo1234</p>
+        </div>
         <input className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2" placeholder="E-mail" value={email} onChange={(e) => setEmail(e.target.value)} />
         <input type="password" className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2" placeholder="Senha" value={password} onChange={(e) => setPassword(e.target.value)} />
         {error ? <p className="text-sm text-rose-400">{error}</p> : null}
