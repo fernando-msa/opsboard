@@ -9,6 +9,7 @@
     "lint": "next lint",
     "security:audit": "npm audit --omit=dev",
     "security:audit:json": "npm audit --omit=dev --json",
+    "security:audit:gate": "node -e \"const {execSync}=require('child_process');let raw='';try{raw=execSync('npm audit --omit=dev --json',{stdio:['ignore','pipe','pipe']}).toString()}catch(e){raw=(e.stdout||'').toString()}const report=JSON.parse(raw||'{}');const v=(report.metadata&&report.metadata.vulnerabilities)||{};const high=Number(v.high||0);const critical=Number(v.critical||0);const moderate=Number(v.moderate||0);const low=Number(v.low||0);console.log('npm audit summary => critical:',critical,'high:',high,'moderate:',moderate,'low:',low);if(high+critical>0){console.error('Security gate failed: high/critical vulnerabilities found.');process.exit(1)}console.log('Security gate passed: no high/critical vulnerabilities.');\"",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
