@@ -31,7 +31,7 @@ export function GoogleAuthButton({ mode }: { mode: 'login' | 'register' }) {
 
       setEnabled(true);
       setMissingConfig([]);
-      void initAnalytics(config);
+      if (config) void initAnalytics(config);
     }
 
     void loadConfig();

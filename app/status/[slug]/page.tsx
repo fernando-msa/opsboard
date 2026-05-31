@@ -1,11 +1,6 @@
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
-
-const statusMap: Record<string, string> = {
-  OPERATIONAL: 'Operacional',
-  DEGRADED: 'Degradado',
-  DOWN: 'Fora do ar'
-};
+import { SERVICE_STATUS_LABELS } from '@/lib/constants';
 
 export default async function PublicStatusPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -31,7 +26,7 @@ export default async function PublicStatusPage({ params }: { params: Promise<{ s
         {org.services.map((service) => (
           <article key={service.id} className="card flex items-center justify-between">
             <h2 className="font-medium">{service.name}</h2>
-            <span className="text-sm text-slate-300">{statusMap[service.status]}</span>
+            <span className="text-sm text-slate-300">{SERVICE_STATUS_LABELS[service.status]}</span>
           </article>
         ))}
       </section>
