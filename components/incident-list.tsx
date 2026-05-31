@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { SERVICE_STATUS_LABELS } from '@/lib/constants';
 
 type Incident = {
   id: string;
@@ -11,30 +12,33 @@ type Incident = {
   service?: { name: string } | null;
 };
 
-const statusMap: Record<Incident['status'], string> = {
-  OPERATIONAL: 'Operacional',
-  DEGRADED: 'Degradado',
-  DOWN: 'Fora do ar'
-};
-
 export function IncidentList({ initialIncidents }: { initialIncidents: Incident[] }) {
   const [incidents, setIncidents] = useState(initialIncidents);
+  const [error, setError] = useState<string | null>(null);
 
   async function updateIncident(incident: Incident, status: Incident['status']) {
+    setError(null);
     const response = await fetch(`/api/incidents/${incident.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status })
     });
 
-    if (!response.ok) return;
+    if (!response.ok) {
+      setError('Falha ao atualizar o incidente. Tente novamente.');
+      return;
+    }
 
     setIncidents((current) => current.map((item) => (item.id === incident.id ? { ...item, status } : item)));
   }
 
   async function removeIncident(id: string) {
+    setError(null);
     const response = await fetch(`/api/incidents/${id}`, { method: 'DELETE' });
-    if (!response.ok) return;
+    if (!response.ok) {
+      setError('Falha ao excluir o incidente. Tente novamente.');
+      return;
+    }
 
     setIncidents((current) => current.filter((item) => item.id !== id));
   }
@@ -42,6 +46,11 @@ export function IncidentList({ initialIncidents }: { initialIncidents: Incident[
   return (
     <div className="card lg:col-span-2">
       <h2 className="mb-4 text-lg font-semibold">Histórico de incidentes</h2>
+      {error && (
+        <div className="mb-3 rounded-md border border-red-800 bg-red-950/40 px-3 py-2 text-sm text-red-300">
+          {error}
+        </div>
+      )}
       <div className="space-y-3">
         {incidents.map((incident) => (
           <article key={incident.id} className="rounded-lg border border-slate-800 p-3">
@@ -59,7 +68,7 @@ export function IncidentList({ initialIncidents }: { initialIncidents: Incident[
             </div>
             <p className="mt-1 text-sm text-slate-300">{incident.description}</p>
             <p className="mt-2 text-xs text-slate-400">
-              Serviço: {incident.service?.name ?? 'N/A'} • {new Date(incident.createdAt).toLocaleString('pt-BR')} • {statusMap[incident.status]}
+              Serviço: {incident.service?.name ?? 'N/A'} • {new Date(incident.createdAt).toLocaleString('pt-BR')} • {SERVICE_STATUS_LABELS[incident.status]}
             </p>
             <button onClick={() => removeIncident(incident.id)} className="mt-2 rounded-md border border-rose-800 px-2 py-1 text-xs text-rose-300 hover:bg-rose-950/40">
               Excluir incidente

@@ -1,207 +1,166 @@
 # OpsBoard
 
-[![Security Audit](https://github.com/fernando-msa/opsboard/actions/workflows/security-audit.yml/badge.svg)](https://github.com/fernando-msa/opsboard/actions/workflows/security-audit.yml)
+> B2B SaaS platform for SLA monitoring, incident management, and public status pages with multi-tenant architecture.
 
-OpsBoard é uma plataforma B2B para centralizar suporte, SLA, incidentes e status page pública em um único fluxo. A proposta é simples: transformar operação dispersa em visibilidade, comunicação e rastreabilidade para o time interno e para o cliente.
+![Security Audit](https://img.shields.io/badge/security-audit-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-## Por que isso importa
+## Tech Stack
 
-- Menos troca de contexto entre suporte, produto e operações.
-- Uma visão única de tickets, incidentes e saúde dos serviços.
-- Status page pública por empresa, pronta para comunicar o cliente sem planilhas ou ferramentas extras.
-- Arquitetura multi-tenant com isolamento por organização.
+| Layer          | Technology                                     |
+| -------------- | ---------------------------------------------- |
+| Framework      | Next.js 16 (App Router, API Routes)            |
+| Language       | TypeScript 5.7                                 |
+| Frontend       | React 19, TailwindCSS                          |
+| Database       | PostgreSQL, Prisma ORM                         |
+| Authentication | Custom JWT (jose) + Firebase Auth (Google SSO) |
+| Deployment     | Render (Blueprint)                             |
 
-## Produto em ação
+## Architecture
 
-<table>
-  <tr>
-    <td><img src="public/readme/opsboard-dashboard.png" alt="Dashboard do OpsBoard" /></td>
-    <td><img src="public/readme/opsboard-status-page.png" alt="Status page pública do OpsBoard" /></td>
-  </tr>
-  <tr>
-    <td colspan="2"><img src="public/readme/opsboard-demo.gif" alt="Demonstração animada do OpsBoard" /></td>
-  </tr>
-</table>
+OpsBoard follows a **multi-tenant** architecture where every organization is isolated at the database level. All queries are scoped by `organizationId`, preventing cross-tenant data access.
 
-## O que o produto entrega
+- **Server Components** handle data fetching (dashboard, incidents, status pages) via Prisma queries executed on the server.
+- **Client Components** manage interactive UI (forms, tables, lists) and communicate with API routes via `fetch`.
+- **API Routes** under `/api` provide a REST layer with JWT-based authentication (HTTP-only cookies) and input validation.
+- **Public Status Pages** at `/status/:slug` expose a read-only view of services and recent incidents per organization.
 
-- Autenticação com JWT em cookie HTTP-only.
-- Cadastro que cria organização, usuário e serviços padrão em um único passo.
-- Gestão de tickets com SLA, prioridade, abertura e resolução.
-- Gestão de incidentes com impacto automático nos serviços.
-- Status page pública por empresa em `/status/:slug`.
-- Suporte a Google Auth via Firebase.
-- Seed demo para apresentar o produto sem montar dados do zero.
+## Features
 
-## Fluxo ponta a ponta
+- JWT authentication with HTTP-only cookies and Google SSO via Firebase Auth
+- Multi-tenant organization isolation (all queries scoped by `organizationId`)
+- Ticket management with SLA tracking (priority-based deadlines)
+- Incident management with automatic service status propagation
+- Public status pages per organization (`/status/:slug`)
+- SLA dashboard with average resolution time and compliance percentage
+- Security headers (CSP, HSTS, X-Frame-Options, X-Content-Type-Options)
+- Input validation on all API endpoints
+- Automated security audit pipeline (Dependabot + npm audit gate)
+- 18 automated tests (Vitest)
 
-1. O usuário se registra e já entra em uma organização isolada.
-2. O dashboard mostra tickets, SLA e métricas operacionais.
-3. O time cria tickets e incidentes no mesmo ambiente.
-4. Quando um incidente afeta um serviço, o status do serviço é refletido na status page pública.
-5. O cliente acessa a página pública da organização e acompanha a situação em tempo real.
+## Project Structure
 
-## Stack
-
-- Next.js 16.2.4 com App Router e API Routes.
-- React 19.
-- TypeScript.
-- PostgreSQL.
-- Prisma ORM.
-- TailwindCSS.
-- Firebase Auth e Firebase Admin para login com Google.
-
-## Segurança e isolamento
-
-- Cookie de sessão com `httpOnly`, `sameSite=lax` e `secure` em produção.
-- Validação de payload nas rotas mutadoras.
-- Verificação de pertencimento do `serviceId` à mesma organização antes de atualizar incidentes.
-- Verificação do token do Google no backend antes de criar sessão.
-- Isolamento por `organizationId` em tickets, incidentes, serviços e usuários.
-- Headers de hardening HTTP (X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy e frame-ancestors).
-
-Relatório técnico completo da remediação:
-
-- `docs/security-remediation-report.md`
-
-## Estrutura do projeto
-
-```bash
-.
-├── app/
-│   ├── api/                # Auth, tickets, incidentes, SLA, Firebase config
-│   ├── dashboard/          # Dashboard interno
-│   ├── incidents/          # Gestão de incidentes
-│   ├── login/              # Login
-│   ├── register/           # Cadastro
-│   └── status/[slug]/      # Status page pública
-├── components/             # Interface e formulários
-├── lib/                    # Auth, Prisma, Firebase e cálculo de SLA
-├── prisma/                 # Schema, migrations e seed
-├── public/readme/          # Screenshots e GIF do produto
-└── render.yaml             # Deploy no Render
+```
+app/
+  api/
+    auth/          # Authentication endpoints (login, register, logout, Google SSO)
+    incidents/     # Incident CRUD
+    tickets/       # Ticket CRUD
+    services/      # Service listing
+    sla/           # SLA metrics
+    me/            # Current session
+    health/        # Health check endpoint
+  dashboard/       # SLA dashboard (server component)
+  incidents/       # Incident management page
+  login/           # Login form
+  register/        # Registration form
+  status/[slug]/   # Public status page per organization
+components/        # Reusable UI components
+lib/
+  auth.ts          # JWT sign/verify, cookie management
+  constants.ts     # Shared constants (priority hours, status labels)
+  firebase-admin.ts# Firebase Admin SDK initialization
+  firebase-client.ts# Firebase client SDK
+  prisma.ts        # Prisma client singleton
+  sla.ts           # SLA metrics calculation
+  slugify.ts       # URL slug generation
+middleware.ts      # Next.js route protection
+prisma/
+  schema.prisma    # Database schema (5 models, 3 enums)
+  seed.ts          # Demo data seeder
+  validate-seed.ts # Seed validation script
+docs/
+  security-remediation-report.md
+  demo-validation-report.md
+.github/
+  workflows/security-audit.yml
+  dependabot.yml
 ```
 
-## Como rodar localmente
+## Getting Started
 
-### 1) Pré-requisitos
+### Prerequisites
 
 - Node.js 20+
 - PostgreSQL
 
-### 2) Variáveis de ambiente
-
-Crie um arquivo `.env` com pelo menos:
-
-- `DATABASE_URL`
-- `JWT_SECRET`
-- `PORT`
-
-Se for usar login com Google, configure também as variáveis `NEXT_PUBLIC_FIREBASE_*` e `FIREBASE_*` descritas abaixo.
-
-### 3) Instalar dependências
+### Installation
 
 ```bash
+git clone <repository-url>
+cd opsboard
+cp .env.example .env    # configure DATABASE_URL, JWT_SECRET
 npm install
-```
-
-### 4) Aplicar migrations
-
-```bash
 npx prisma migrate deploy
-```
-
-### 5) Carregar dados demo
-
-```bash
-npm run prisma:seed
-```
-
-### 6) Subir a aplicação
-
-```bash
+npm run prisma:seed      # optional: load demo data
 npm run dev
 ```
 
-Depois, acesse `http://localhost:3000`.
+The application will be available at `http://localhost:3000`.
 
-## Conta demo
+### Environment Variables
 
-- E-mail: `admin@demo.com`
-- Senha: `demo1234`
+| Variable                        | Description                          | Required |
+| ------------------------------- | ------------------------------------ | -------- |
+| `DATABASE_URL`                  | PostgreSQL connection string         | Yes      |
+| `JWT_SECRET`                    | Secret for JWT signing (32+ chars)   | Yes      |
+| `PORT`                          | Server port (default: 3000)          | No       |
+| `NEXT_PUBLIC_FIREBASE_*`       | Firebase client configuration        | No       |
+| `FIREBASE_PROJECT_ID`          | Firebase Admin project ID            | No       |
+| `FIREBASE_CLIENT_EMAIL`        | Firebase Admin client email          | No       |
+| `FIREBASE_PRIVATE_KEY`         | Firebase Admin private key           | No       |
 
-Essa conta é criada pelo seed e já vem com dados para demonstrar tickets, SLA e incidentes.
+## API Reference
 
-## Google Auth
+| Endpoint               | Method   | Auth | Description                    |
+| ---------------------- | -------- | ---- | ------------------------------ |
+| `/api/auth/register`   | POST     | No   | Create account and organization|
+| `/api/auth/login`      | POST     | No   | Email/password login           |
+| `/api/auth/logout`     | POST     | No   | Clear session cookie           |
+| `/api/auth/google`     | POST     | No   | Google SSO login               |
+| `/api/me`              | GET      | Yes  | Current session info           |
+| `/api/tickets`         | GET/POST | Yes  | List/create tickets            |
+| `/api/tickets/:id`     | PUT/DEL  | Yes  | Update/delete ticket           |
+| `/api/incidents`       | GET/POST | Yes  | List/create incidents          |
+| `/api/incidents/:id`   | PUT/DEL  | Yes  | Update/delete incident         |
+| `/api/services`        | GET      | Yes  | List organization services     |
+| `/api/sla`             | GET      | Yes  | SLA metrics                    |
+| `/api/health`          | GET      | No   | Health check                   |
 
-O login social usa Firebase Auth no cliente e Firebase Admin no backend.
+## Data Model
 
-### Variáveis do frontend
+- **Organization** — Top-level tenant with a unique slug
+- **User** — Belongs to an organization, has email/password or Google auth
+- **Ticket** — Support ticket with priority-based SLA deadlines
+- **Incident** — Service incident with status tracking
+- **Service** — Organization service shown on the public status page
 
-- `NEXT_PUBLIC_FIREBASE_API_KEY`
-- `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
-- `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
-- `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
-- `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
-- `NEXT_PUBLIC_FIREBASE_APP_ID`
-- `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID`
+Enums: `TicketStatus` (OPEN, IN_PROGRESS, RESOLVED, CLOSED), `TicketPriority` (LOW, MEDIUM, HIGH, CRITICAL), `ServiceStatus` (OPERATIONAL, DEGRADED, DOWN)
 
-### Variáveis do backend
+## Security
 
-- `FIREBASE_PROJECT_ID`
-- `FIREBASE_CLIENT_EMAIL`
-- `FIREBASE_PRIVATE_KEY`
+- Route protection via Next.js middleware (unauthenticated users redirected to `/login`)
+- Security headers: CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy
+- Input validation on all API endpoints with descriptive error responses
+- Organization-scoped queries prevent cross-tenant data access (including `updateMany` for service status)
+- Generic error messages prevent information leakage
+- HTTP-only cookies with `sameSite: lax` and `secure` in production
+- Passwords hashed with bcrypt (cost factor 10)
+- Automated CI/CD security audit with high/critical vulnerability gate
+- Dependabot enabled for dependency vulnerability monitoring
 
-Se as variáveis públicas não estiverem configuradas, o botão de Google Auth fica desativado sem quebrar o deploy.
+## Testing
 
-## Deploy no Render
+```bash
+npm test           # run all tests
+npm run test:watch # watch mode
+```
 
-O projeto já inclui `render.yaml`.
+Test coverage includes:
+- `lib/slugify.test.ts` — URL slug generation (7 tests)
+- `lib/sla.test.ts` — SLA metrics calculation (6 tests)
+- `lib/constants.test.ts` — Shared constants validation (5 tests)
 
-1. Faça push do repositório no GitHub.
-2. No Render, crie um novo Blueprint.
-3. Conecte o repositório.
-4. Configure `DATABASE_URL` e `JWT_SECRET`.
-5. Faça o deploy.
+## License
 
-O script de start executa a migration antes de iniciar o Next.js.
-
-## Troubleshooting do Render
-
-Se aparecer `Environment variable not found: DATABASE_URL`, confirme:
-
-1. O banco PostgreSQL foi criado na mesma região do serviço web.
-2. A `Internal Database URL` foi copiada para o serviço certo.
-3. O serviço web recebeu `DATABASE_URL` e `JWT_SECRET`.
-4. Você rodou um novo deploy após salvar as variáveis.
-
-Se quiser validar a aplicação depois do deploy:
-
-1. Abra `/register` e crie uma conta.
-2. Faça login em `/login`.
-3. Verifique `/dashboard` e `/status/:slug`.
-
-## Seed e demo
-
-O seed cria:
-
-- Uma empresa demo com múltiplos serviços, incidentes e histórico de tickets.
-- Contas demo para testar o produto sem precisar criar usuários do zero.
-- Tickets em aberto, em andamento, resolvidos e fechados, com SLA variado.
-- Incidentes ativos e resolvidos para deixar a status page pública mais realista.
-
-Contas demo prontas:
-
-- `admin@demo.com` / `demo1234`
-- `suporte@demo.com` / `demo1234`
-- `ops@demo.com` / `demo1234`
-
-Empresa demo:
-
-- Slug: `demo-company`
-
-## Próximos passos naturais
-
-1. Conectar métricas do dashboard com um pipeline real de incidentes.
-2. Adicionar notificações por e-mail ou Slack.
-3. Criar páginas de marketing e pricing para transformar o produto em uma oferta comercial completa.
+MIT — Fernando S. De Santana Junior

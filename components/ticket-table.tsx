@@ -19,22 +19,31 @@ const statusLabel: Record<Ticket['status'], string> = {
 
 export function TicketTable({ initialTickets }: { initialTickets: Ticket[] }) {
   const [tickets, setTickets] = useState(initialTickets);
+  const [error, setError] = useState<string | null>(null);
 
   async function updateStatus(ticket: Ticket, status: Ticket['status']) {
+    setError(null);
     const response = await fetch(`/api/tickets/${ticket.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status })
     });
 
-    if (!response.ok) return;
+    if (!response.ok) {
+      setError('Falha ao atualizar o ticket. Tente novamente.');
+      return;
+    }
 
     setTickets((current) => current.map((item) => (item.id === ticket.id ? { ...item, status } : item)));
   }
 
   async function removeTicket(id: string) {
+    setError(null);
     const response = await fetch(`/api/tickets/${id}`, { method: 'DELETE' });
-    if (!response.ok) return;
+    if (!response.ok) {
+      setError('Falha ao excluir o ticket. Tente novamente.');
+      return;
+    }
 
     setTickets((current) => current.filter((item) => item.id !== id));
   }
@@ -42,6 +51,11 @@ export function TicketTable({ initialTickets }: { initialTickets: Ticket[] }) {
   return (
     <div className="card overflow-auto lg:col-span-2">
       <h2 className="mb-4 text-lg font-semibold">Tickets recentes</h2>
+      {error && (
+        <div className="mb-3 rounded-md border border-red-800 bg-red-950/40 px-3 py-2 text-sm text-red-300">
+          {error}
+        </div>
+      )}
       <table className="min-w-full text-left text-sm">
         <thead className="text-slate-400">
           <tr>
