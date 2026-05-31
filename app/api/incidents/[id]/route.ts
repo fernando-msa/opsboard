@@ -4,6 +4,10 @@ import { prisma } from '@/lib/prisma';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
+type ServiceStatus = 'OPERATIONAL' | 'DEGRADED' | 'DOWN';
+
+const validStatuses = new Set<ServiceStatus>(['OPERATIONAL', 'DEGRADED', 'DOWN']);
+
 export async function PUT(request: Request, context: RouteContext) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
@@ -16,7 +20,7 @@ export async function PUT(request: Request, context: RouteContext) {
   const payload = await request.json();
   const status = payload.status as 'OPERATIONAL' | 'DEGRADED' | 'DOWN' | undefined;
 
-  if (!status) {
+  if (!status || !validStatuses.has(status)) {
     return NextResponse.json({ error: 'Status é obrigatório.' }, { status: 400 });
   }
 
@@ -29,7 +33,10 @@ export async function PUT(request: Request, context: RouteContext) {
   });
 
   if (existing.serviceId) {
-    await prisma.service.update({ where: { id: existing.serviceId }, data: { status } });
+    await prisma.service.updateMany({
+      where: { id: existing.serviceId, organizationId: session.organizationId },
+      data: { status }
+    });
   }
 
   return NextResponse.json(incident);

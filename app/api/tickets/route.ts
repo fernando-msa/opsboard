@@ -1,7 +1,8 @@
-import { TicketPriority } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+
+type TicketPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 
 const priorityHours: Record<TicketPriority, number> = {
   LOW: 72,
@@ -28,12 +29,21 @@ export async function POST(request: Request) {
 
   const { title, description, priority = 'MEDIUM' } = await request.json();
   const parsedPriority = priority as TicketPriority;
+
+  if (typeof title !== 'string' || !title.trim() || typeof description !== 'string' || !description.trim()) {
+    return NextResponse.json({ error: 'Título e descrição são obrigatórios.' }, { status: 400 });
+  }
+
+  if (!Object.prototype.hasOwnProperty.call(priorityHours, parsedPriority)) {
+    return NextResponse.json({ error: 'Prioridade inválida.' }, { status: 400 });
+  }
+
   const dueAt = new Date(Date.now() + priorityHours[parsedPriority] * 60 * 60 * 1000);
 
   const ticket = await prisma.ticket.create({
     data: {
-      title,
-      description,
+      title: title.trim(),
+      description: description.trim(),
       priority: parsedPriority,
       dueAt,
       organizationId: session.organizationId

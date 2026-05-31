@@ -2,10 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  @apply bg-slate-950 text-slate-100;
+  @apply bg-slate-950 text-slate-100 antialiased;
+  font-family: var(--font-sans), sans-serif;
+  background-image:
+    radial-gradient(circle at top left, rgba(45, 212, 191, 0.15), transparent 28%),
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.16), transparent 24%),
+    linear-gradient(180deg, #020617 0%, #09111f 45%, #020617 100%);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display), sans-serif;
+  letter-spacing: -0.03em;
 }
 
 .card {
-  @apply rounded-xl border border-slate-800 bg-slate-900 p-5 shadow-lg shadow-slate-950/20;
+  @apply rounded-2xl border border-slate-800/80 bg-slate-900/80 p-5 shadow-lg shadow-slate-950/20 backdrop-blur;
 }

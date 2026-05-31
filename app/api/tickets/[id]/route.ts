@@ -1,9 +1,14 @@
-import { TicketStatus } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 type RouteContext = { params: Promise<{ id: string }> };
+
+type TicketStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
+type TicketPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
+const validStatuses = new Set<TicketStatus>(['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED']);
+const validPriorities = new Set<TicketPriority>(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']);
 
 export async function PUT(request: Request, context: RouteContext) {
   const session = await getSession();
@@ -16,6 +21,14 @@ export async function PUT(request: Request, context: RouteContext) {
 
   const { title, description, status, priority } = await request.json();
 
+  if (status && !validStatuses.has(status)) {
+    return NextResponse.json({ error: 'Status inválido.' }, { status: 400 });
+  }
+
+  if (priority && !validPriorities.has(priority)) {
+    return NextResponse.json({ error: 'Prioridade inválida.' }, { status: 400 });
+  }
+
   const ticket = await prisma.ticket.update({
     where: { id },
     data: {
@@ -23,7 +36,7 @@ export async function PUT(request: Request, context: RouteContext) {
       description,
       status,
       priority,
-      resolvedAt: status === TicketStatus.RESOLVED || status === TicketStatus.CLOSED ? new Date() : null
+      resolvedAt: status === 'RESOLVED' || status === 'CLOSED' ? new Date() : null
     }
   });
 

@@ -33,6 +33,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Conta Google sem e-mail disponível.' }, { status: 400 });
     }
 
+    if (decoded.firebase?.sign_in_provider !== 'google.com' || decoded.email_verified !== true) {
+      return NextResponse.json({ error: 'Token Google inválido.' }, { status: 400 });
+    }
+
     let user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
