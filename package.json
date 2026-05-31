@@ -30,14 +30,14 @@
     "firebase-admin": "^13.8.0",
     "jose": "^5.10.0",
     "next": "^16.2.4",
-    "react": "19.2.0",
+    "react": "19.2.6",
     "react-dom": "19.2.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^20.17.0",
-    "@types/react": "^19.2.2",
+    "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.2",
     "autoprefixer": "^10.4.20",
     "jsdom": "^29.1.1",
