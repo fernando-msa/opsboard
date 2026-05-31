@@ -13,8 +13,28 @@ export type FirebasePublicConfig = {
   measurementId?: string;
 };
 
+const requiredConfigMap: Array<[envName: string, key: keyof FirebasePublicConfig]> = [
+  ['NEXT_PUBLIC_FIREBASE_API_KEY', 'apiKey'],
+  ['NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN', 'authDomain'],
+  ['NEXT_PUBLIC_FIREBASE_PROJECT_ID', 'projectId'],
+  ['NEXT_PUBLIC_FIREBASE_APP_ID', 'appId']
+];
+
+export function getMissingFirebasePublicConfig(config: FirebasePublicConfig | null) {
+  if (!config) {
+    return requiredConfigMap.map(([envName]) => envName);
+  }
+
+  return requiredConfigMap
+    .filter(([, key]) => {
+      const value = config[key];
+      return !value || String(value).trim().length === 0;
+    })
+    .map(([envName]) => envName);
+}
+
 function hasFirebaseConfig(config: FirebasePublicConfig | null) {
-  return Boolean(config?.apiKey && config.authDomain && config.projectId && config.appId);
+  return getMissingFirebasePublicConfig(config).length === 0;
 }
 
 export async function loadFirebasePublicConfig() {

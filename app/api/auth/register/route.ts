@@ -2,18 +2,7 @@ import bcrypt from 'bcryptjs';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { setAuthCookie, signToken } from '@/lib/auth';
-
-function slugify(name: string) {
-  const slug = name
-    .toLowerCase()
-    .trim()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)+/g, '');
-
-  return slug || `org-${Date.now()}`;
-}
+import { slugify } from '@/lib/slugify';
 
 export async function POST(request: Request) {
   try {
@@ -26,7 +15,7 @@ export async function POST(request: Request) {
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
-      return NextResponse.json({ error: 'E-mail já cadastrado.' }, { status: 409 });
+      return NextResponse.json({ ok: true });
     }
 
     const baseSlug = slugify(organizationName);
@@ -61,7 +50,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('REGISTER_ERROR', error);
     return NextResponse.json(
-      { error: 'Falha ao criar conta. Verifique DATABASE_URL, JWT_SECRET e migrações do Prisma.' },
+      { error: 'Erro interno do servidor.' },
       { status: 500 }
     );
   }

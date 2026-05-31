@@ -4,9 +4,14 @@ import { prisma } from '@/lib/prisma';
 import { calculateSlaMetrics } from '@/lib/sla';
 
 export async function GET() {
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+  try {
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
 
-  const tickets = await prisma.ticket.findMany({ where: { organizationId: session.organizationId } });
-  return NextResponse.json(calculateSlaMetrics(tickets));
+    const tickets = await prisma.ticket.findMany({ where: { organizationId: session.organizationId } });
+    return NextResponse.json(calculateSlaMetrics(tickets));
+  } catch (error) {
+    console.error('SLA_GET_ERROR', error);
+    return NextResponse.json({ error: 'Erro interno do servidor.' }, { status: 500 });
+  }
 }

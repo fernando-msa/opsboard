@@ -1,8 +1,10 @@
 import bcrypt from 'bcryptjs';
 import { PrismaClient, ServiceStatus, TicketPriority, TicketStatus } from '@prisma/client';
+import { PRIORITY_HOURS } from '../lib/constants';
 
 const prisma = new PrismaClient();
 
+<<<<<<< Updated upstream
 const priorityHours: Record<TicketPriority, number> = {
   LOW: 72,
   MEDIUM: 48,
@@ -14,6 +16,14 @@ const demoAccounts = [
   { name: 'Demo Admin', email: 'admin@demo.com' },
   { name: 'Demo Support', email: 'suporte@demo.com' },
   { name: 'Demo Ops', email: 'ops@demo.com' }
+=======
+const titles = [
+  'Erro de integração com ERP',
+  'Lentidão no painel administrativo',
+  'Timeout em webhook de pagamento',
+  'Falha na exportação de relatório',
+  'Inconsistência em dados de clientes'
+>>>>>>> Stashed changes
 ];
 
 const serviceSeeds = [
@@ -265,6 +275,7 @@ async function main() {
     include: { services: true }
   });
 
+<<<<<<< Updated upstream
   for (const ticketSeed of ticketSeeds) {
     const createdAt = hoursAgo(ticketSeed.createdHoursAgo);
     const dueAt = new Date(createdAt.getTime() + priorityHours[ticketSeed.priority] * 60 * 60 * 1000);
@@ -272,6 +283,14 @@ async function main() {
       ticketSeed.status === TicketStatus.OPEN || ticketSeed.status === TicketStatus.IN_PROGRESS
         ? null
         : new Date(createdAt.getTime() + (ticketSeed.resolvedHoursAfterCreation ?? priorityHours[ticketSeed.priority]) * 60 * 60 * 1000);
+=======
+  for (let i = 0; i < 20; i++) {
+    const priority = Object.values(TicketPriority)[i % 4];
+    const createdAt = new Date(Date.now() - (20 - i) * 12 * 60 * 60 * 1000);
+    const dueAt = new Date(createdAt.getTime() + PRIORITY_HOURS[priority] * 60 * 60 * 1000);
+    const resolved = i % 3 !== 0;
+    const resolvedAt = resolved ? new Date(createdAt.getTime() + (i % 8 + 1) * 60 * 60 * 1000) : null;
+>>>>>>> Stashed changes
 
     await prisma.ticket.create({
       data: {

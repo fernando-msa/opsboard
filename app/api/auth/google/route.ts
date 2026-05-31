@@ -2,21 +2,12 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { setAuthCookie, signToken } from '@/lib/auth';
 import { verifyFirebaseIdToken } from '@/lib/firebase-admin';
+import { slugify } from '@/lib/slugify';
 
 function makeOrgName(email: string, displayName?: string | null) {
   if (displayName) return `${displayName} Org`;
   const domain = email.split('@')[1] ?? 'empresa';
   return domain.split('.')[0];
-}
-
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .trim()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)+/g, '') || `org-${Date.now()}`;
 }
 
 export async function POST(request: Request) {

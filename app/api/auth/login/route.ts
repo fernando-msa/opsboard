@@ -28,7 +28,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('LOGIN_ERROR', error);
     return NextResponse.json(
-      { error: 'Falha ao autenticar. Verifique DATABASE_URL, JWT_SECRET e migrações do Prisma.' },
+      { error: 'Erro interno do servidor.' },
       { status: 500 }
     );
   }
