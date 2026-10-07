@@ -6,3 +6,4 @@ coverage
 prisma/dev.db
 *firebase-adminsdk*.json
 serviceAccountKey.json
+*.tsbuildinfo

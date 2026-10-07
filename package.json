@@ -22,14 +22,14 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@prisma/client": "^7.8.0",
+    "@prisma/client": "^6.19.3",
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "firebase": "^12.13.0",
     "firebase-admin": "^13.8.0",
     "jose": "^6.2.3",
-    "next": "^16.2.11",
+    "next": "^16.4.0",
     "react": "19.2.6",
     "react-dom": "19.2.0"
   },
@@ -42,13 +42,29 @@
     "autoprefixer": "^10.4.20",
     "jsdom": "^29.1.1",
     "postcss": "^8.5.23",
-    "prisma": "^7.8.0",
+    "prisma": "^6.19.3",
     "tailwindcss": "^3.4.15",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vitest": "^4.1.7"
   },
   "overrides": {
-    "deepmerge-ts": "^8.0.0"
+    "deepmerge-ts": "^8.0.0",
+    "mysql2": "^3.24.5",
+    "fast-uri": "^4.2.1",
+    "@grpc/grpc-js": "^1.14.5",
+    "sharp": "^0.35.5",
+    "source-map-js": "^1.2.2",
+    "undici": "^7.30.0",
+    "braces": "3.0.3",
+    "micromatch": {
+      "braces": "3.0.3"
+    },
+    "chokidar": {
+      "braces": "3.0.3"
+    },
+    "@fastify/busboy": "^3.2.2",
+    "postcss-selector-parser": "^7.1.6",
+    "uuid": "^11.1.1"
   }
 }

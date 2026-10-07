@@ -32,7 +32,7 @@ export async function GET() {
     return NextResponse.json(
       {
         status: 'healthy',
-        message: 'Seed executado com sucesso',
+        message: 'Sistema operacional e banco de dados conectado.',
         database: 'connected',
         organization: {
           name: demoOrg.name,
@@ -41,11 +41,6 @@ export async function GET() {
           services: serviceCount,
           tickets: ticketCount
         },
-        demo_accounts: demoOrg.users.map(u => ({
-          email: u.email,
-          name: u.name,
-          password: 'demo1234'
-        })),
         timestamp: new Date().toISOString()
       },
       { status: 200 }
@@ -56,7 +51,6 @@ export async function GET() {
       {
         status: 'unhealthy',
         message: 'Falha ao verificar status do banco de dados',
-        error: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString()
       },
       { status: 500 }

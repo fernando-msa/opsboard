@@ -7,8 +7,11 @@ const securityHeaders = [
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data:",
-      "connect-src 'self' https://*.googleapis.com https://identitytoolkit.googleapis.com",
-      "frame-ancestors 'none'"
+      "connect-src 'self' https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com",
+      "frame-src 'self' https://*.firebaseapp.com",
+      "frame-ancestors 'none'",
+      "object-src 'none'",
+      "base-uri 'self'"
     ].join('; ')
   },
   { key: 'X-Frame-Options', value: 'DENY' },

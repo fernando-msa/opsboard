@@ -14,6 +14,9 @@ function getSecret() {
   if (!secret) {
     throw new Error('JWT_SECRET não configurado.');
   }
+  if (process.env.NODE_ENV === 'production' && secret.length < 32) {
+    throw new Error('JWT_SECRET inseguro para produção. Deve conter ao menos 32 caracteres.');
+  }
   return new TextEncoder().encode(secret);
 }
 

@@ -39,15 +39,25 @@ export async function PUT(request: Request, context: RouteContext) {
       return NextResponse.json({ error: 'Prioridade inválida.' }, { status: 400 });
     }
 
+    const updateData: {
+      title?: string;
+      description?: string;
+      status?: TicketStatus;
+      priority?: TicketPriority;
+      resolvedAt?: Date | null;
+    } = {};
+
+    if (title !== undefined) updateData.title = title.trim();
+    if (description !== undefined) updateData.description = description.trim();
+    if (status !== undefined) {
+      updateData.status = status as TicketStatus;
+      updateData.resolvedAt = status === TicketStatus.RESOLVED || status === TicketStatus.CLOSED ? new Date() : null;
+    }
+    if (priority !== undefined) updateData.priority = priority as TicketPriority;
+
     const ticket = await prisma.ticket.update({
       where: { id },
-      data: {
-        title,
-        description,
-        status,
-        priority,
-        resolvedAt: status === TicketStatus.RESOLVED || status === TicketStatus.CLOSED ? new Date() : null
-      }
+      data: updateData
     });
 
     return NextResponse.json(ticket);
