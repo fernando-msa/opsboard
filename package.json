@@ -39,7 +39,7 @@
     "@types/node": "^20.17.0",
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.2",
-    "autoprefixer": "^10.4.20",
+    "autoprefixer": "^10.6.1",
     "jsdom": "^29.1.1",
     "postcss": "^8.5.23",
     "prisma": "^6.19.3",
