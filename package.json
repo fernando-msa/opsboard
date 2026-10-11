@@ -28,7 +28,7 @@
     "date-fns": "^4.1.0",
     "firebase": "^12.13.0",
     "firebase-admin": "^13.8.0",
-    "jose": "^6.2.3",
+    "jose": "^6.2.12",
     "next": "^16.4.0",
     "react": "19.2.6",
     "react-dom": "19.2.0"
